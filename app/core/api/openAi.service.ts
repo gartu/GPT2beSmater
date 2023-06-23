@@ -1,5 +1,6 @@
 import {Configuration, OpenAIApi} from 'openai';
 import {CoreStore} from '../store/core.store';
+import {logger} from '../../utils/console.logger';
 
 class OpenAiServiceHandler {
   private openAiService: OpenAiService | null = null;
@@ -31,20 +32,35 @@ export const openAiServiceHandler = new OpenAiServiceHandler();
 class OpenAiService {
   constructor(private openAiApi: OpenAIApi) {}
 
-  public listModels() {
+  // TODO implémenter un timer entre 2 messages pour éviter les code 429 de rate limit
+
+  public async listModels() {
     try {
-      this.openAiApi.listModels();
+      const res = await this.openAiApi.listModels();
+      res.data.data
+        .sort((a, b) => a.id.localeCompare(b.id))
+        .forEach(el => logger.log(el.id));
     } catch (error) {
-      console.log(error);
+      logger.log(error);
     }
   }
 
-  public async writeRaw(message: string): Promise<string> {
-    // {
-    //   model: "gpt-3.5-turbo",
-    //   messages: [{role: "user", content: "Hello world"}],
-    // }
+  public async writeRaw(content: string): Promise<string> {
+    try {
+      const chatCompletion = await this.openAiApi.createChatCompletion({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          {role: 'system', content: 'You are a helpful assistant.'},
+          {role: 'user', content},
+        ],
+      });
+      const response = chatCompletion.data.choices[0].message;
+      logger.log(response);
 
-    return `write ${message}`;
+      return response?.content || '';
+    } catch (error) {
+      logger.log(error);
+      return '';
+    }
   }
 }

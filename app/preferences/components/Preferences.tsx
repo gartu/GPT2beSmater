@@ -3,12 +3,12 @@ import {Button, Text, TextInput, View} from 'react-native';
 import {CoreStore} from '../../core/store/core.store';
 import {Section} from '../../shared/components/Section';
 import {openAiServiceHandler} from '../../core/api/openAi.service';
+import {logger} from '../../utils/console.logger';
 
 export function Preferences(): JSX.Element {
   const [apiKey, setApiKey] = useState('');
   const [username, setUsername] = useState('');
 
-  console.log('loading element');
   useEffect(() => {
     updateApiKey();
     updateUsername();
@@ -32,12 +32,10 @@ export function Preferences(): JSX.Element {
   };
 
   const apiCheck = async () => {
-    console.log('Api check start');
     const openAiService = await openAiServiceHandler.getInstance();
-    const result = await openAiService.writeRaw('helo');
     openAiService.listModels();
-    console.log(`result : ${result}`);
-    console.log('Api check ends');
+    const result = await openAiService.writeRaw('Hello =)');
+    logger.log(`result : ${result}`);
   };
 
   return (
