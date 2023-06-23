@@ -1,6 +1,6 @@
 import EncryptedStorage from 'react-native-encrypted-storage';
 
-export type CoreStoreItems = 'API_KEY' | 'USER_NAME';
+export type CoreStoreItems = 'API_KEY' | 'API_MODEL' | 'USER_NAME';
 
 export const CoreStore = {
   async storeItem(key: CoreStoreItems, value: string) {

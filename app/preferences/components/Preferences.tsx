@@ -7,10 +7,12 @@ import {logger} from '../../utils/console.logger';
 
 export function Preferences(): JSX.Element {
   const [apiKey, setApiKey] = useState('');
+  const [apiModel, setApiModel] = useState('gpt-3.5-turbo');
   const [username, setUsername] = useState('');
 
   useEffect(() => {
     updateApiKey();
+    updateApiModel();
     updateUsername();
   }, []);
 
@@ -23,6 +25,14 @@ export function Preferences(): JSX.Element {
     openAiServiceHandler.rebuild();
   };
 
+  // gestion du modèle
+  const updateApiModel = async () => {
+    setApiKey(await CoreStore.getItem('API_MODEL'));
+  };
+  const saveApiModel = () => {
+    CoreStore.storeItem('API_MODEL', apiModel);
+  };
+
   // gestion du nom d'utilisateur
   const updateUsername = async () => {
     setApiKey(await CoreStore.getItem('USER_NAME'));
@@ -33,8 +43,7 @@ export function Preferences(): JSX.Element {
 
   const apiCheck = async () => {
     const openAiService = await openAiServiceHandler.getInstance();
-    openAiService.listModels();
-    const result = await openAiService.writeRaw('Hello =)');
+    const result = await openAiService.writeRaw('Hello, comment ça va ?');
     logger.log(`result : ${result}`);
   };
 
@@ -46,6 +55,13 @@ export function Preferences(): JSX.Element {
         onChangeText={setUsername}
       />
       <Button title="Enregistrer" onPress={saveUsername} />
+
+      <TextInput
+        placeholder="Modèle à utiliser"
+        value={apiModel || ''}
+        onChangeText={setApiModel}
+      />
+      <Button title="Enregistrer" onPress={saveApiModel} />
 
       <TextInput
         placeholder="Ajouter votre clé d'API OpenAI ici"

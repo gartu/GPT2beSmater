@@ -30,11 +30,14 @@ class OpenAiServiceHandler {
 export const openAiServiceHandler = new OpenAiServiceHandler();
 
 class OpenAiService {
-  constructor(private openAiApi: OpenAIApi) {}
+  constructor(private openAiApi: OpenAIApi) {
+    // logger.log('Modèles disponibles :');
+    // this.listModels();
+  }
 
   // TODO implémenter un timer entre 2 messages pour éviter les code 429 de rate limit
 
-  public async listModels() {
+  private async listModels() {
     try {
       const res = await this.openAiApi.listModels();
       res.data.data
@@ -47,10 +50,15 @@ class OpenAiService {
 
   public async writeRaw(content: string): Promise<string> {
     try {
+      const model = await CoreStore.getItem('API_MODEL');
+      const username = await CoreStore.getItem('USER_NAME');
       const chatCompletion = await this.openAiApi.createChatCompletion({
-        model: 'gpt-3.5-turbo',
+        model,
         messages: [
-          {role: 'system', content: 'You are a helpful assistant.'},
+          {
+            role: 'system',
+            content: `Tu es un assistant sympatique qui parles en français et réponds à l'utilisateur par son prénom : \`${username}\`.`,
+          },
           {role: 'user', content},
         ],
       });
