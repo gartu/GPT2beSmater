@@ -52,12 +52,13 @@ class OpenAiService {
     try {
       const model = await CoreStore.getItem('API_MODEL');
       const username = await CoreStore.getItem('USER_NAME');
+      const context = await CoreStore.getItem('BOT_CONTEXT');
       const chatCompletion = await this.openAiApi.createChatCompletion({
         model,
         messages: [
           {
             role: 'system',
-            content: `Tu es un assistant sympatique qui parles en français et réponds à l'utilisateur par son prénom : \`${username}\`.`,
+            content: context.replace('USER_NAME', username),
           },
           {role: 'user', content},
         ],
