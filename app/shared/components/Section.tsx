@@ -1,9 +1,10 @@
 /* eslint-disable prettier/prettier */
 import React from 'react';
 import {PropsWithChildren} from 'react';
-import {Text, View, useColorScheme} from 'react-native';
+import {View, useColorScheme} from 'react-native';
 import {styles} from '../styles/globalStyle';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
+import {Text} from '@rneui/base';
 
 type SectionProps = PropsWithChildren<{
   title: string;

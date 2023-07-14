@@ -1,17 +1,18 @@
 import React, {useEffect, useState} from 'react';
-import {Button, Text, TextInput, View} from 'react-native';
-import {CoreStore} from '../core/store/core.store';
+import {View} from 'react-native';
 import {NavigationProp} from '@react-navigation/native';
-import {styles} from '../shared/styles/globalStyle';
-import {botConfig} from '../botConfig';
+import {botConfig} from '../../botConfig';
+import {CoreStore} from '../../core/store/core.store';
+import {styles} from '../../shared/styles/globalStyle';
+import TextArea from '../../shared/components/TextArea';
+import {Input} from '@rneui/themed';
+import {Button, Text} from '@rneui/base';
 
-type PreferencesScreenProps = {
-  navigation: NavigationProp<any, 'PreferenceScreen'>;
+type PreferencesProps = {
+  navigation: NavigationProp<any, 'Preference'>;
 };
 
-export function PreferencesScreen({
-  navigation,
-}: PreferencesScreenProps): JSX.Element {
+export function Preferences({navigation}: PreferencesProps): JSX.Element {
   const [username, setUsername] = useState('');
   const [context, setContext] = useState(botConfig.context);
 
@@ -41,7 +42,7 @@ export function PreferencesScreen({
   return (
     <View>
       <Text style={[styles.fieldTitle]}>{'\n'}Prénom</Text>
-      <TextInput
+      <Input
         placeholder="Comment vous appelez-vous ?"
         value={username || ''}
         onChangeText={setUsername}
@@ -49,9 +50,10 @@ export function PreferencesScreen({
       <Button title="Enregistrer" onPress={saveUsername} />
 
       <Text style={[styles.fieldTitle]}>{'\n'}Contexte</Text>
-      <TextInput
+      <TextArea
+        nbLines={3}
         placeholder="Contexte système"
-        value={context || ''}
+        value={context}
         onChangeText={setContext}
       />
       <Button title="Enregistrer" onPress={saveContext} />

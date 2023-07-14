@@ -1,19 +1,20 @@
 import React, {useEffect, useState} from 'react';
-import {Button, Text, TextInput, View} from 'react-native';
-import {CoreStore} from '../core/store/core.store';
-import {Section} from '../shared/components/Section';
-import {openAiServiceHandler} from '../core/api/openAi.service';
-import {logger} from '../utils/console.logger';
+import {View} from 'react-native';
+import {CoreStore} from '../../core/store/core.store';
+import {Section} from '../../shared/components/Section';
+import {openAiServiceHandler} from '../../core/api/openAi.service';
+import {logger} from '../../utils/console.logger';
 import {NavigationProp} from '@react-navigation/native';
-import {styles} from '../shared/styles/globalStyle';
+import {styles} from '../../shared/styles/globalStyle';
+import {Button, Text} from '@rneui/base';
+import {Input} from '@rneui/themed';
+import TextArea from '../../shared/components/TextArea';
 
-type ParametersScreenProps = {
+type ParametersProps = {
   navigation: NavigationProp<any, 'ParametersScreen'>;
 };
 
-export function ParametersScreen({
-  navigation,
-}: ParametersScreenProps): JSX.Element {
+export function Parameters({navigation}: ParametersProps): JSX.Element {
   const [apiKey, setApiKey] = useState('');
   const [apiModel, setApiModel] = useState('gpt-3.5-turbo');
 
@@ -50,7 +51,7 @@ export function ParametersScreen({
   return (
     <View>
       <Text style={[styles.fieldTitle]}>{'\n'}Modèle à utiliser</Text>
-      <TextInput
+      <Input
         placeholder="Modèle à utiliser"
         value={apiModel || ''}
         onChangeText={setApiModel}
@@ -58,9 +59,10 @@ export function ParametersScreen({
       <Button title="Enregistrer" onPress={saveApiModel} />
 
       <Text style={[styles.fieldTitle]}>{'\n'}Clé API d'OpenAI</Text>
-      <TextInput
+      <TextArea
+        nbLines={2}
         placeholder="Ajouter votre clé d'API OpenAI ici"
-        value={apiKey || ''}
+        value={apiKey}
         onChangeText={setApiKey}
       />
       <Button title="Enregistrer" onPress={saveApiKey} />
