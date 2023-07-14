@@ -1,10 +1,6 @@
 import EncryptedStorage from 'react-native-encrypted-storage';
 
-export type CoreStoreItems =
-  | 'API_KEY'
-  | 'API_MODEL'
-  | 'USER_NAME'
-  | 'BOT_CONTEXT';
+export type CoreStoreItems = 'API_KEY' | 'API_MODEL' | 'USERNAME';
 
 export const CoreStore = {
   async storeItem(key: CoreStoreItems, value: string) {
@@ -18,5 +14,21 @@ export const CoreStore = {
       return (await EncryptedStorage.getItem(key)) || '';
     } catch (error) {}
     return '';
+  },
+
+  async storeJsonItem(key: CoreStoreItems, obj: object) {
+    try {
+      this.storeItem(key, JSON.stringify(obj));
+    } catch (error) {}
+  },
+
+  async getJsonItem<T>(key: CoreStoreItems): Promise<T | undefined> {
+    const serializedObject = await this.getItem(key);
+    if (serializedObject) {
+      try {
+        return JSON.parse(serializedObject);
+      } catch (err) {}
+    }
+    return undefined;
   },
 };

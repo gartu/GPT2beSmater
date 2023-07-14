@@ -1,6 +1,7 @@
 import {Configuration, OpenAIApi} from 'openai';
 import {CoreStore} from '../store/core.store';
 import {logger} from '../../utils/console.logger';
+import {BotContext, Variable} from '../../contexts';
 
 class OpenAiServiceHandler {
   private openAiService: OpenAiService | null = null;
@@ -48,19 +49,40 @@ class OpenAiService {
     }
   }
 
-  public async writeRaw(content: string): Promise<string> {
+  public async write(
+    botContext: BotContext,
+    userContent: string,
+    userOption: {[key: string]: string},
+  ): Promise<string> {
+    logger.log(userOption);
+    const replacementKeys = botContext.variables.map((variable: Variable) => ({
+      key: `%${variable.key}%`,
+      value: userOption[variable.key],
+    }));
+
+    const updatedContext = replacementKeys.reduce(
+      (prev, curr) => prev.replace(curr.key, curr.value || ''),
+      botContext.context,
+    );
+    const content = botContext.request.replace('%DATA%', userContent);
+
+    return this.writeRaw(updatedContext, content);
+  }
+
+  public async writeRaw(context: string, content: string): Promise<string> {
     try {
       const model = await CoreStore.getItem('API_MODEL');
-      const username = await CoreStore.getItem('USER_NAME');
-      const context = await CoreStore.getItem('BOT_CONTEXT');
+      const username = await CoreStore.getItem('USERNAME');
+      logger.log(context);
+      logger.log(content);
       const chatCompletion = await this.openAiApi.createChatCompletion({
         model,
         messages: [
           {
             role: 'system',
-            content: context.replace('USER_NAME', username),
+            content: context.replace('%USERNAME%', username),
           },
-          {role: 'user', content},
+          {role: 'user', content: content.replace('%USERNAME%', username)},
         ],
       });
       const response = chatCompletion.data.choices[0].message;

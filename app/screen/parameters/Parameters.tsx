@@ -3,10 +3,9 @@ import {View} from 'react-native';
 import {CoreStore} from '../../core/store/core.store';
 import {Section} from '../../shared/components/Section';
 import {openAiServiceHandler} from '../../core/api/openAi.service';
-import {logger} from '../../utils/console.logger';
 import {NavigationProp} from '@react-navigation/native';
 import {styles} from '../../shared/styles/globalStyle';
-import {Button, Text} from '@rneui/base';
+import {Button, Dialog, Text} from '@rneui/base';
 import {Input} from '@rneui/themed';
 import TextArea from '../../shared/components/TextArea';
 
@@ -17,6 +16,8 @@ type ParametersProps = {
 export function Parameters({navigation}: ParametersProps): JSX.Element {
   const [apiKey, setApiKey] = useState('');
   const [apiModel, setApiModel] = useState('gpt-3.5-turbo');
+  const [apiCheckResponse, setApiCheckResponse] = useState('');
+  const [apiCheckDialogVisible, setApiCheckDialogVisible] = useState(false);
 
   useEffect(() => {
     updateApiKeyFromStorage();
@@ -34,18 +35,25 @@ export function Parameters({navigation}: ParametersProps): JSX.Element {
 
   // gestion du modèle
   const updateApiModelFromStorage = async () => {
-    setApiKey(await CoreStore.getItem('API_MODEL'));
+    setApiModel(await CoreStore.getItem('API_MODEL'));
   };
+
   const saveApiModel = () => {
     CoreStore.storeItem('API_MODEL', apiModel);
   };
 
   const apiCheck = async () => {
+    setApiCheckDialogVisible(true);
+    setApiCheckResponse('Test de connexion en cours..');
     const openAiService = await openAiServiceHandler.getInstance();
     const result = await openAiService.writeRaw(
-      'Check, check. Respond check please ...',
+      `Tu es un ordinateur distant et ton rôle est de confirmer à \`%USERNAME%\` que l'état de la connexion avec lui fonctionne.`,
+      `Check, check. Répondez s'il vous plait...`,
     );
-    logger.log(`result : ${result}`);
+    setApiCheckResponse(result);
+  };
+  const clearApiCheckDialog = () => {
+    setApiCheckDialogVisible(!apiCheckDialogVisible);
   };
 
   return (
@@ -53,7 +61,7 @@ export function Parameters({navigation}: ParametersProps): JSX.Element {
       <Text style={[styles.fieldTitle]}>{'\n'}Modèle à utiliser</Text>
       <Input
         placeholder="Modèle à utiliser"
-        value={apiModel || ''}
+        value={apiModel}
         onChangeText={setApiModel}
       />
       <Button title="Enregistrer" onPress={saveApiModel} />
@@ -69,11 +77,22 @@ export function Parameters({navigation}: ParametersProps): JSX.Element {
 
       <Section title="API Check">
         Cliquez sur le bouton ci-dessous pour vérifier le bon fonctionnement de
-        votre clé d'API.
+        votre clé d'API.{'\n'}
       </Section>
 
-      <Text />
       <Button title="Vérifier la connexion à l'API" onPress={apiCheck} />
+
+      <Dialog
+        isVisible={apiCheckDialogVisible}
+        onBackdropPress={clearApiCheckDialog}
+        overlayStyle={dialogStyle}>
+        <Dialog.Title title="API Check" />
+        <Text>{apiCheckResponse}</Text>
+      </Dialog>
     </View>
   );
 }
+
+const dialogStyle = {
+  backgroundColor: '#e4e5e7',
+};

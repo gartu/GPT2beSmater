@@ -1,12 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import {View} from 'react-native';
 import {NavigationProp} from '@react-navigation/native';
-import {botConfig} from '../../botConfig';
 import {CoreStore} from '../../core/store/core.store';
 import {styles} from '../../shared/styles/globalStyle';
-import TextArea from '../../shared/components/TextArea';
 import {Input} from '@rneui/themed';
 import {Button, Text} from '@rneui/base';
+import {Section} from '../../shared/components/Section';
 
 type PreferencesProps = {
   navigation: NavigationProp<any, 'Preference'>;
@@ -14,29 +13,17 @@ type PreferencesProps = {
 
 export function Preferences({navigation}: PreferencesProps): JSX.Element {
   const [username, setUsername] = useState('');
-  const [context, setContext] = useState(botConfig.context);
 
   useEffect(() => {
     updateUsernameFromStorage();
-    updateContextFromStorage();
   }, []);
 
   // gestion du nom d'utilisateur
   const updateUsernameFromStorage = async () => {
-    setUsername(await CoreStore.getItem('USER_NAME'));
+    setUsername(await CoreStore.getItem('USERNAME'));
   };
   const saveUsername = () => {
-    CoreStore.storeItem('USER_NAME', username);
-  };
-
-  const updateContextFromStorage = async () => {
-    const storedContext = await CoreStore.getItem('BOT_CONTEXT');
-    if (storedContext) {
-      setContext(await CoreStore.getItem('BOT_CONTEXT'));
-    }
-  };
-  const saveContext = () => {
-    CoreStore.storeItem('BOT_CONTEXT', context);
+    CoreStore.storeItem('USERNAME', username);
   };
 
   return (
@@ -48,15 +35,9 @@ export function Preferences({navigation}: PreferencesProps): JSX.Element {
         onChangeText={setUsername}
       />
       <Button title="Enregistrer" onPress={saveUsername} />
-
-      <Text style={[styles.fieldTitle]}>{'\n'}Contexte</Text>
-      <TextArea
-        nbLines={3}
-        placeholder="Contexte système"
-        value={context}
-        onChangeText={setContext}
-      />
-      <Button title="Enregistrer" onPress={saveContext} />
+      <Section title="A venir">
+        Des contextes personnalisés pourront être ajouté ici
+      </Section>
     </View>
   );
 }

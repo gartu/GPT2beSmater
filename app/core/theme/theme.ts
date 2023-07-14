@@ -20,6 +20,16 @@ const theme = createTheme({
     Input: {
       style: inputStyle,
     },
+    Divider: {
+      style: {
+        marginVertical: 15,
+      },
+    },
+    Dialog: {
+      style: {
+        backgroundColor: 'white',
+      },
+    },
   },
 });
 
