@@ -1,7 +1,7 @@
 import {Configuration, OpenAIApi} from 'openai';
 import {CoreStore} from '../store/core.store';
 import {logger} from '../../utils/console.logger';
-import {BotContext, Variable} from '../../contexts';
+import {BotContext, Variable} from './context.service';
 
 class OpenAiServiceHandler {
   private openAiService: OpenAiService | null = null;

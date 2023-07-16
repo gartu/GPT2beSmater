@@ -1,4 +1,4 @@
-import {Variable} from '..';
+import {Variable} from '../../core/service/context.service';
 
 const languesVar: Variable = {
   key: 'LANGUAGE',

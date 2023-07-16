@@ -1,14 +1,18 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {NavigationProp} from '@react-navigation/native';
-import {openAiServiceHandler} from '../../core/api/openAi.service';
+import {openAiServiceHandler} from '../../core/service/openAi.service';
 import {Divider} from '@rneui/themed';
-import {Button, Input, Text} from '@rneui/base';
+import {Button, Text} from '@rneui/base';
 import {Picker} from '@react-native-picker/picker';
-import contexts, {Option, Variable} from '../../contexts';
 import {ScrollView} from 'react-native-gesture-handler';
 import TextArea from '../../shared/components/TextArea';
-import {logger} from '../../utils/console.logger';
+import {
+  BotContext,
+  Variable,
+  contextService,
+} from '../../core/service/context.service';
+import {ContextVariablePicker} from './components/ContextVariablePicker';
 
 type InteractionProps = {
   navigation: NavigationProp<any, 'Interaction'>;
@@ -20,53 +24,28 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
   const [output, setOutput] = useState('');
   const [botContextIdx, setBotContextIdx] = useState(0);
   const [sendButtonDisabled, setSendButtonDisabled] = useState(false);
-  const [userVariables, setUserVariables] = useState(
-    {} as {[key: string]: number},
-  );
-  const [userVariablesOptionData, setUserVariablesOptionData] = useState(
+  const [contextVariables, setContextVariables] = useState<Variable[]>([]);
+  const [contexts, setContexts] = useState<BotContext[]>([]);
+  const [selectedOptions, setSelectedOptions] = useState(
     {} as {[key: string]: string},
   );
 
   useEffect(() => {
-    // défini les entrées par défaut
-    updateBotContextVariableOption(contexts[botContextIdx].variables[0])(0);
-    updateCustomVariableOption(contexts[botContextIdx].variables[0])('');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    contextService.getContexts().then(ctx => {
+      setContexts(ctx);
+    });
   }, []);
 
-  function updateBotContextVariableOption(
-    variable: Variable,
-  ): (optionIdx: number) => void {
-    return (optionIdx: number) => {
-      setUserVariables({
-        ...userVariables,
-        [variable.key]: optionIdx,
-      });
-    };
-  }
-
-  function updateCustomVariableOption(
-    variable: Variable,
-  ): (optionData: string) => void {
-    return (optionData: string) => {
-      setUserVariablesOptionData({
-        ...userVariablesOptionData,
-        [variable.key]: optionData,
-      });
-    };
-  }
-
-  const variableOptionHaveData = (variable: Variable): boolean => {
-    const option = getVariableOption(variable);
-    return option ? option.value.includes('%DATA%') : false;
-  };
-
-  const getVariableOption = (variable: Variable): Option | undefined => {
-    if (variable.key in userVariables) {
-      return variable.options[userVariables[variable.key]];
+  useEffect(() => {
+    // défini les entrées par défaut
+    // updateBotContextVariableOption(contexts[botContextIdx].variables[0])(0);
+    // updateCustomVariableOption(contexts[botContextIdx].variables[0])('');
+    if (contexts && contexts.length > botContextIdx) {
+      setContextVariables(contexts[botContextIdx].variables);
+    } else {
+      setContextVariables([]);
     }
-    return undefined;
-  };
+  }, [contexts, botContextIdx]);
 
   const send = async () => {
     setSendButtonDisabled(true);
@@ -74,21 +53,16 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
     setInput('');
     const openAiService = await openAiServiceHandler.getInstance();
 
-    const selectedVariables = contexts[botContextIdx].variables;
-    const userOptions = selectedVariables.reduce(
-      (prev, variable) => ({
-        ...prev,
-        [variable.key]: variable.options[
-          userVariables[variable.key]
-        ].value.replace('%DATA%', userVariablesOptionData[variable.key]),
-      }),
+    const userOptions = Object.entries(selectedOptions).reduce(
+      (prev, [variableKey, value]) => {
+        return {
+          ...prev,
+          [variableKey]: value,
+        };
+      },
       {},
     );
 
-    logger.log(selectedVariables);
-    logger.log('Before call');
-    logger.log(input);
-    logger.log(userOptions);
     const result = await openAiService.write(
       contexts[botContextIdx],
       input,
@@ -97,6 +71,17 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
     setOutput(result);
     setSendButtonDisabled(false);
   };
+
+  function onVariableChangeBuilder(
+    viariableKey: string,
+  ): (selectedOption: string) => void {
+    return (optionValue: string) => {
+      setSelectedOptions({
+        ...selectedOptions,
+        [viariableKey]: optionValue,
+      });
+    };
+  }
 
   return (
     <ScrollView>
@@ -110,29 +95,12 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
         ))}
       </Picker>
 
-      {contexts[botContextIdx].variables.map(variable => (
-        <View key={variable.key}>
-          <Text style={styles.bold}>{variable.name} :</Text>
-          <Picker
-            selectedValue={userVariables[variable.key]}
-            onValueChange={updateBotContextVariableOption(variable)}>
-            {variable.options.map((option, index) => (
-              <Picker.Item
-                key={`${botContextIdx}-${variable.key}-${index}`}
-                label={option.name}
-                value={index}
-              />
-            ))}
-          </Picker>
-          {variableOptionHaveData(variable) ? (
-            <Input
-              placeholder={getVariableOption(variable)?.name}
-              onChangeText={updateCustomVariableOption(variable)}
-            />
-          ) : (
-            ''
-          )}
-        </View>
+      {contextVariables.map(variable => (
+        <ContextVariablePicker
+          key={`${botContextIdx}-${variable.key}`}
+          variable={variable}
+          onVariableChange={onVariableChangeBuilder(variable.key)}
+        />
       ))}
 
       <TextArea

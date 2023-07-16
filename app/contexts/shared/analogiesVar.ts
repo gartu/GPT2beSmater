@@ -1,4 +1,4 @@
-import {Variable} from '..';
+import {Variable} from '../../core/service/context.service';
 
 const analogiesVar: Variable = {
   key: 'ANALOGY',
@@ -6,7 +6,7 @@ const analogiesVar: Variable = {
   options: [
     {
       name: 'Cookies',
-      value: 'Utilise une analogie à des cookies.',
+      value: 'Utilise une analogie à des cookies et un verre de lait.',
     },
     {
       name: 'Jeux vidéo',

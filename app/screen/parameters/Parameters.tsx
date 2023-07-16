@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {View} from 'react-native';
 import {CoreStore} from '../../core/store/core.store';
 import {Section} from '../../shared/components/Section';
-import {openAiServiceHandler} from '../../core/api/openAi.service';
+import {openAiServiceHandler} from '../../core/service/openAi.service';
 import {NavigationProp} from '@react-navigation/native';
 import {styles} from '../../shared/styles/globalStyle';
 import {Button, Dialog, Text} from '@rneui/base';

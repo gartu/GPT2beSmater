@@ -1,4 +1,4 @@
-import {BotContext} from '.';
+import {BotContext} from '../core/service/context.service';
 import analogiesVar from './shared/analogiesVar';
 
 const explainer: BotContext = {
