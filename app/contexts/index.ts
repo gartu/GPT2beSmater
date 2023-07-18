@@ -4,13 +4,5 @@ import translator from './translator';
 
 export default [explainer, translator, memotechnic];
 
-// {
-//   ...analogiesVar,
-//   options: [
-//     ...analogiesVar.options,
-//     {
-//       name: 'Surprise',
-//       value: 'Utilise une analogie particulièrement suprenante',
-//     },
-//   ],
-// },
+export const chat = `Tu es un assistant aimable et ton rôle est de répondre aux questions de l'utilisateur '%USERNAME%'.
+Tu vas à l'essentiel en formulant des réponses courtes et précises.`;

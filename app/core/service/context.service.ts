@@ -1,4 +1,5 @@
 import contexts from '../../contexts';
+import {CoreStore} from '../store/core.store';
 
 // si l'option contient %DATA%, un champs texte dédié sera proposé et utilisé comme remplacement
 export type Option = {name: string; value: string};
@@ -27,7 +28,11 @@ class ContextService {
     if (this.contexts.length === 0) {
       await this.fetchContexts();
     }
-    return this.contexts;
+    const defaultContext = await CoreStore.getItem('DEFAULT_CONTEXT');
+    return [
+      {context: defaultContext, name: 'Chat', variables: [], request: '%DATA%'},
+      ...this.contexts,
+    ];
   }
 }
 

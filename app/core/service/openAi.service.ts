@@ -1,4 +1,4 @@
-import {Configuration, OpenAIApi} from 'openai';
+import {ChatCompletionRequestMessage, Configuration, OpenAIApi} from 'openai';
 import {CoreStore} from '../store/core.store';
 import {logger} from '../../utils/console.logger';
 import {BotContext, Variable} from './context.service';
@@ -70,21 +70,42 @@ class OpenAiService {
   }
 
   public async writeRaw(context: string, content: string): Promise<string> {
+    logger.log(context);
+    logger.log(content);
+
     try {
       const model = await CoreStore.getItem('API_MODEL');
-      const username = await CoreStore.getItem('USERNAME');
-      logger.log(context);
-      logger.log(content);
-      const chatCompletion = await this.openAiApi.createChatCompletion({
-        model,
-        messages: [
+      const username = (await CoreStore.getItem('USERNAME')) || 'Anonyme';
+
+      const newLine: ChatCompletionRequestMessage = {
+        role: 'user',
+        content: content.replace('%USERNAME%', username),
+      };
+
+      const chatHistory: ChatCompletionRequestMessage[] =
+        (await CoreStore.getObject('CHAT_HISTORY')) || [];
+
+      let messages: ChatCompletionRequestMessage[] = [];
+      if (chatHistory.length > 0) {
+        messages = [...chatHistory, newLine];
+      } else {
+        messages = [
           {
             role: 'system',
             content: context.replace('%USERNAME%', username),
           },
-          {role: 'user', content: content.replace('%USERNAME%', username)},
-        ],
+          newLine,
+        ];
+      }
+
+      const chatCompletion = await this.openAiApi.createChatCompletion({
+        model,
+        messages,
       });
+
+      CoreStore.storeObject('CHAT_HISTORY', messages);
+
+      logger.log(chatCompletion.data.choices);
       const response = chatCompletion.data.choices[0].message;
       logger.log(response);
 

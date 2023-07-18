@@ -30,6 +30,7 @@ export function ContextVariablePicker({
 
   useEffect(() => {
     onVariableChange(option?.value.replace('%DATA%', optionData) || '');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [option, optionData]);
 
   return (

@@ -13,6 +13,7 @@ import {
   contextService,
 } from '../../core/service/context.service';
 import {ContextVariablePicker} from './components/ContextVariablePicker';
+import {CoreStore} from '../../core/store/core.store';
 
 type InteractionProps = {
   navigation: NavigationProp<any, 'Interaction'>;
@@ -24,6 +25,7 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
   const [output, setOutput] = useState('');
   const [botContextIdx, setBotContextIdx] = useState(0);
   const [sendButtonDisabled, setSendButtonDisabled] = useState(false);
+  const [historyExists, setHistoryExists] = useState(false);
   const [contextVariables, setContextVariables] = useState<Variable[]>([]);
   const [contexts, setContexts] = useState<BotContext[]>([]);
   const [selectedOptions, setSelectedOptions] = useState(
@@ -34,6 +36,7 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
     contextService.getContexts().then(ctx => {
       setContexts(ctx);
     });
+    updateChatHistoryState();
   }, []);
 
   useEffect(() => {
@@ -46,6 +49,13 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
       setContextVariables([]);
     }
   }, [contexts, botContextIdx]);
+
+  const updateChatHistoryState = async () => {
+    const chatHistoryExists = Boolean(
+      await CoreStore.getObject('CHAT_HISTORY'),
+    );
+    setHistoryExists(chatHistoryExists);
+  };
 
   const send = async () => {
     setSendButtonDisabled(true);
@@ -68,7 +78,15 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
       input,
       userOptions,
     );
+    setHistoryExists(true);
     setOutput(result);
+    setSendButtonDisabled(false);
+  };
+
+  const clearInteraction = async () => {
+    setHistoryExists(false);
+    setSendButtonDisabled(true);
+    await CoreStore.remove('CHAT_HISTORY');
     setSendButtonDisabled(false);
   };
 
@@ -105,11 +123,18 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
 
       <TextArea
         nbLines={2}
-        placeholder="Ma question est .."
+        placeholder={historyExists ? 'Continuez ici ..' : 'Débuter ici ..'}
         value={input}
         onChangeText={setInput}
       />
       <Button disabled={sendButtonDisabled} title="Envoyer" onPress={send} />
+      <Text>{'\n'}</Text>
+      {historyExists ? (
+        <Button title="Effacer la conversation" onPress={clearInteraction} />
+      ) : (
+        ''
+      )}
+      <Text>{'\n'}</Text>
     </ScrollView>
   );
 }
