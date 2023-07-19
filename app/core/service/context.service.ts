@@ -1,18 +1,11 @@
-import contexts from '../../contexts';
+import {config} from '../../../config';
+import localContexts from '../../contexts';
+import {BotContext} from '../../shared/contexts.v1';
+import {logger} from '../../utils/console.logger';
 import {CoreStore} from '../store/core.store';
 
-// si l'option contient %DATA%, un champs texte dédié sera proposé et utilisé comme remplacement
-export type Option = {name: string; value: string};
-export type Variable = {key: string; name: string; options: Option[]};
-// l'entrée utilisateur de la request sera inséré à la place de %DATA%
-export type BotContext = {
-  name: string;
-  context: string;
-  request: string;
-  variables: Variable[];
-};
-
 class ContextService {
+  private apiEndpoint = '';
   private contexts: BotContext[] = [];
 
   constructor() {
@@ -20,8 +13,18 @@ class ContextService {
   }
 
   private async fetchContexts(): Promise<void> {
-    // TODO fetch
-    this.contexts = contexts;
+    try {
+      const response = await fetch(config.CONTEXT.ENDPOINT, {
+        method: config.CONTEXT.METHOD,
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
+      this.contexts = JSON.parse(await response.json());
+    } catch (err) {
+      this.contexts = localContexts;
+    }
   }
 
   async getContexts(): Promise<BotContext[]> {

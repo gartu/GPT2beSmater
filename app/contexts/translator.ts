@@ -1,4 +1,4 @@
-import {BotContext} from '../core/service/context.service';
+import {BotContext} from '../shared/contexts.v1';
 import languesVar from './shared/languesVar';
 
 const translator: BotContext = {

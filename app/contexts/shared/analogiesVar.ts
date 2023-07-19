@@ -1,4 +1,4 @@
-import {Variable} from '../../core/service/context.service';
+import {Variable} from '../../shared/contexts.v1';
 
 const analogiesVar: Variable = {
   key: 'ANALOGY',

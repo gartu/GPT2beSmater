@@ -41,10 +41,10 @@ export function Preferences({navigation}: PreferencesProps): JSX.Element {
         value={username || ''}
         onChangeText={setUsername}
       />
-      <Text style={[styles.fieldTitle]}>{'\n'}Contexte de chat par défaut</Text>
+      <Text style={[styles.fieldTitle]}>{'\n'}Contexte du chat par défaut</Text>
       <TextArea
         nbLines={4}
-        placeholder="Entrez ici le contexte de chat par défaut"
+        placeholder="Entrez ici le contexte du chat par défaut"
         value={defaultContext || ''}
         onChangeText={setDefaultContext}
       />
