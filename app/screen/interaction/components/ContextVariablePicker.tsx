@@ -2,8 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {Input, Text} from '@rneui/base';
 import {Picker} from '@react-native-picker/picker';
-import {Option, Variable} from '../../../core/service/context.service';
-import {loadConfig} from 'metro-config';
+import {Option, Variable} from '../../../shared/contexts.v1';
 
 type ContextVariablePickerProps = {
   variable: Variable;

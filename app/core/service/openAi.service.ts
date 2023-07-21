@@ -1,7 +1,7 @@
 import {ChatCompletionRequestMessage, Configuration, OpenAIApi} from 'openai';
 import {CoreStore} from '../store/core.store';
 import {logger} from '../../utils/console.logger';
-import {BotContext, Variable} from './context.service';
+import {BotContext, Variable} from '../../shared/contexts.v1';
 
 class OpenAiServiceHandler {
   private openAiService: OpenAiService | null = null;
@@ -38,15 +38,16 @@ class OpenAiService {
 
   // TODO implémenter un timer entre 2 messages pour éviter les code 429 de rate limit
 
-  private async listModels() {
+  public async listModels(): Promise<string[]> {
     try {
       const res = await this.openAiApi.listModels();
-      res.data.data
+      return res.data.data
         .sort((a, b) => a.id.localeCompare(b.id))
-        .forEach(el => logger.log(el.id));
+        .map(el => el.id);
     } catch (error) {
       logger.log(error);
     }
+    return [];
   }
 
   public async write(
@@ -69,7 +70,11 @@ class OpenAiService {
     return this.writeRaw(updatedContext, content);
   }
 
-  public async writeRaw(context: string, content: string): Promise<string> {
+  public async writeRaw(
+    context: string,
+    content: string,
+    forceNewDialog?: boolean,
+  ): Promise<string> {
     logger.log(context);
     logger.log(content);
 
@@ -86,7 +91,7 @@ class OpenAiService {
         (await CoreStore.getObject('CHAT_HISTORY')) || [];
 
       let messages: ChatCompletionRequestMessage[] = [];
-      if (chatHistory.length > 0) {
+      if (!forceNewDialog && chatHistory.length > 0) {
         messages = [...chatHistory, newLine];
       } else {
         messages = [
@@ -103,7 +108,9 @@ class OpenAiService {
         messages,
       });
 
-      CoreStore.storeObject('CHAT_HISTORY', messages);
+      if (!forceNewDialog) {
+        CoreStore.storeObject('CHAT_HISTORY', messages);
+      }
 
       logger.log(chatCompletion.data.choices);
       const response = chatCompletion.data.choices[0].message;

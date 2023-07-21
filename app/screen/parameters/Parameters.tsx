@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View} from 'react-native';
+import {ScrollView, StyleProp, TextStyle} from 'react-native';
 import {CoreStore} from '../../core/store/core.store';
 import {Section} from '../../shared/components/Section';
 import {openAiServiceHandler} from '../../core/service/openAi.service';
@@ -18,6 +18,9 @@ export function Parameters({navigation}: ParametersProps): JSX.Element {
   const [apiModel, setApiModel] = useState('gpt-3.5-turbo');
   const [apiCheckResponse, setApiCheckResponse] = useState('');
   const [apiCheckDialogVisible, setApiCheckDialogVisible] = useState(false);
+  const [availableModels, setAvailableModels] = useState<string[]>([]);
+  const [availableModelsDialogVisible, setAvailableModelsDialogVisible] =
+    useState(false);
 
   useEffect(() => {
     updateApiKeyFromStorage();
@@ -49,6 +52,7 @@ export function Parameters({navigation}: ParametersProps): JSX.Element {
     const result = await openAiService.writeRaw(
       `Tu es un ordinateur distant et ton rôle est de confirmer à \`%USERNAME%\` que l'état de la connexion avec lui fonctionne.`,
       `Check, check. Répondez s'il vous plait...`,
+      true,
     );
     setApiCheckResponse(result);
   };
@@ -56,8 +60,19 @@ export function Parameters({navigation}: ParametersProps): JSX.Element {
     setApiCheckDialogVisible(!apiCheckDialogVisible);
   };
 
+  const displayAvailableModels = async () => {
+    setAvailableModelsDialogVisible(true);
+    setAvailableModels(['Récupération des modèles en cours..']);
+    const openAiService = await openAiServiceHandler.getInstance();
+    const models = await openAiService.listModels();
+    setAvailableModels(models);
+  };
+  const clearAvailableModelsDialog = () => {
+    setAvailableModelsDialogVisible(!availableModelsDialogVisible);
+  };
+
   return (
-    <View>
+    <ScrollView>
       <Text style={[styles.fieldTitle]}>{'\n'}Modèle à utiliser</Text>
       <Input
         placeholder="Modèle à utiliser"
@@ -65,6 +80,32 @@ export function Parameters({navigation}: ParametersProps): JSX.Element {
         onChangeText={setApiModel}
       />
       <Button title="Enregistrer" onPress={saveApiModel} />
+      <Text></Text>
+      <Button
+        title="Afficher les modèles disponible"
+        onPress={displayAvailableModels}
+      />
+
+      <Dialog
+        isVisible={availableModelsDialogVisible}
+        onBackdropPress={clearAvailableModelsDialog}
+        overlayStyle={dialogStyle}>
+        <Dialog.Title title="Liste des modèles" />
+        <Text style={boldStyle}>
+          Attention - Tous les modèles n'ont pas le même coût.{'\n'}
+          Se renseigner sur le site d'OpenAI.
+        </Text>
+        <ScrollView>
+          <Text></Text>
+          {availableModels.map(model => (
+            <Text key={model}>{model}</Text>
+          ))}
+          <Text>
+            {'\n'}
+            {'\n'}
+          </Text>
+        </ScrollView>
+      </Dialog>
 
       <Text style={[styles.fieldTitle]}>{'\n'}Clé API d'OpenAI</Text>
       <TextArea
@@ -81,7 +122,7 @@ export function Parameters({navigation}: ParametersProps): JSX.Element {
       </Section>
 
       <Button title="Vérifier la connexion à l'API" onPress={apiCheck} />
-
+      <Text></Text>
       <Dialog
         isVisible={apiCheckDialogVisible}
         onBackdropPress={clearApiCheckDialog}
@@ -89,10 +130,12 @@ export function Parameters({navigation}: ParametersProps): JSX.Element {
         <Dialog.Title title="API Check" />
         <Text>{apiCheckResponse}</Text>
       </Dialog>
-    </View>
+    </ScrollView>
   );
 }
 
-const dialogStyle = {
+const dialogStyle: StyleProp<TextStyle> = {
   backgroundColor: '#e4e5e7',
 };
+
+const boldStyle: StyleProp<TextStyle> = {fontWeight: '700'};

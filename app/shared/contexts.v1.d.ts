@@ -6,5 +6,6 @@ export type BotContext = {
   name: string;
   context: string;
   request: string;
+  placeholder?: string;
   variables: Variable[];
 };

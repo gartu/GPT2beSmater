@@ -1,19 +1,17 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet} from 'react-native';
+import {StyleSheet, ToastAndroid, View} from 'react-native';
 import {NavigationProp} from '@react-navigation/native';
 import {openAiServiceHandler} from '../../core/service/openAi.service';
-import {Divider} from '@rneui/themed';
+import {Divider, Icon} from '@rneui/themed';
 import {Button, Text} from '@rneui/base';
 import {Picker} from '@react-native-picker/picker';
 import {ScrollView} from 'react-native-gesture-handler';
 import TextArea from '../../shared/components/TextArea';
-import {
-  BotContext,
-  Variable,
-  contextService,
-} from '../../core/service/context.service';
+import {contextService} from '../../core/service/context.service';
 import {ContextVariablePicker} from './components/ContextVariablePicker';
 import {CoreStore} from '../../core/store/core.store';
+import {BotContext, Variable} from '../../shared/contexts.v1';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 type InteractionProps = {
   navigation: NavigationProp<any, 'Interaction'>;
@@ -31,6 +29,7 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
   const [selectedOptions, setSelectedOptions] = useState(
     {} as {[key: string]: string},
   );
+  const [inputPlaceholder, setInputPlaceholder] = useState('Débuter ici ..');
 
   useEffect(() => {
     contextService.getContexts().then(ctx => {
@@ -49,6 +48,22 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
       setContextVariables([]);
     }
   }, [contexts, botContextIdx]);
+
+  useEffect(() => {
+    if (historyExists) {
+      setInputPlaceholder('Continuez ici ..');
+      return;
+    }
+    if (
+      contexts &&
+      contexts.length > botContextIdx &&
+      contexts[botContextIdx].placeholder
+    ) {
+      setInputPlaceholder(contexts[botContextIdx].placeholder || '');
+    } else {
+      setInputPlaceholder('Débuter ici ..');
+    }
+  }, [botContextIdx, contexts, historyExists]);
 
   const updateChatHistoryState = async () => {
     const chatHistoryExists = Boolean(
@@ -101,10 +116,46 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
     };
   }
 
+  const copyLastInput = () => {
+    Clipboard.setString(lastInput);
+    ToastAndroid.show('Message copié', ToastAndroid.SHORT);
+  };
+
+  const copyOutput = () => {
+    Clipboard.setString(output);
+    ToastAndroid.show('Message copié', ToastAndroid.SHORT);
+  };
+
   return (
     <ScrollView>
-      <Text style={[styles.messageBox, styles.odd]}>{lastInput}</Text>
-      <Text style={[styles.messageBox, styles.even]}>{output}</Text>
+      <View>
+        <View style={styles.iconContainer}>
+          <Icon
+            name="copy"
+            size={20}
+            color="#000"
+            type="font-awesome"
+            onPress={copyLastInput}
+          />
+        </View>
+        <Text style={[styles.messageBoxContainer, styles.odd]}>
+          <Text style={styles.messageBox}>{lastInput}</Text>
+        </Text>
+      </View>
+      <View>
+        <View style={styles.iconContainer}>
+          <Icon
+            name="copy"
+            size={20}
+            color="#000"
+            type="font-awesome"
+            onPress={copyOutput}
+          />
+        </View>
+        <Text style={[styles.messageBoxContainer, styles.even]}>
+          <Text style={styles.messageBox}>{output}</Text>
+        </Text>
+      </View>
       <Divider />
       <Text style={styles.bold}>Configuration :</Text>
       <Picker selectedValue={botContextIdx} onValueChange={setBotContextIdx}>
@@ -112,7 +163,6 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
           <Picker.Item key={`ctx-${index}`} label={item.name} value={index} />
         ))}
       </Picker>
-
       {contextVariables.map(variable => (
         <ContextVariablePicker
           key={`${botContextIdx}-${variable.key}`}
@@ -120,10 +170,9 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
           onVariableChange={onVariableChangeBuilder(variable.key)}
         />
       ))}
-
       <TextArea
         nbLines={2}
-        placeholder={historyExists ? 'Continuez ici ..' : 'Débuter ici ..'}
+        placeholder={inputPlaceholder}
         value={input}
         onChangeText={setInput}
       />
@@ -145,12 +194,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
   },
-  messageBox: {
+  messageBoxContainer: {
     padding: 10,
     margin: 2,
     borderStyle: 'solid',
     borderColor: '#000000',
     borderRadius: 5,
+  },
+  messageBox: {},
+  iconContainer: {
+    position: 'absolute',
+    zIndex: 100,
+    top: 10,
+    right: 10,
   },
   even: {
     backgroundColor: '#9886c6',

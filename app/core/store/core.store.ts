@@ -4,7 +4,9 @@ export type CoreStoreItems =
   | 'API_KEY'
   | 'API_MODEL'
   | 'USERNAME'
-  | 'DEFAULT_CONTEXT'
+  | 'DEFAULT_CHAT_CONTEXT'
+  | 'CONTEXTS'
+  | 'LAST_UPDATED_CONTEXT_TIME'
   | 'CHAT_HISTORY';
 
 export const CoreStore = {

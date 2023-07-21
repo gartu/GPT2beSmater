@@ -1,13 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import {View} from 'react-native';
 import {NavigationProp} from '@react-navigation/native';
 import {CoreStore} from '../../core/store/core.store';
 import {styles} from '../../shared/styles/globalStyle';
 import {Input} from '@rneui/themed';
 import {Button, Text} from '@rneui/base';
-import {Section} from '../../shared/components/Section';
 import {chat} from '../../contexts';
 import TextArea from '../../shared/components/TextArea';
+import {ScrollView} from 'react-native-gesture-handler';
+import {ToastAndroid} from 'react-native';
 
 type PreferencesProps = {
   navigation: NavigationProp<any, 'Preference'>;
@@ -23,18 +23,27 @@ export function Preferences({navigation}: PreferencesProps): JSX.Element {
 
   const save = () => {
     CoreStore.storeItem('USERNAME', username);
-    CoreStore.storeItem('DEFAULT_CONTEXT', defaultContext);
+    CoreStore.storeItem('DEFAULT_CHAT_CONTEXT', defaultContext);
   };
 
   // gestion du nom d'utilisateur
   const updateFieldsFromStorage = async () => {
     setUsername(await CoreStore.getItem('USERNAME'));
-    const existingContext = await CoreStore.getItem('DEFAULT_CONTEXT');
+    const existingContext = await CoreStore.getItem('DEFAULT_CHAT_CONTEXT');
     setDefaultContext(existingContext || chat);
   };
 
+  const updateContexts = () => {
+    CoreStore.remove('LAST_UPDATED_CONTEXT_TIME');
+    CoreStore.remove('CONTEXTS');
+    ToastAndroid.show(
+      `Relancer l'application afin de terminer la mise à jour.`,
+      ToastAndroid.SHORT,
+    );
+  };
+
   return (
-    <View>
+    <ScrollView>
       <Text style={[styles.fieldTitle]}>{'\n'}Prénom</Text>
       <Input
         placeholder="Comment vous appelez-vous ?"
@@ -49,9 +58,11 @@ export function Preferences({navigation}: PreferencesProps): JSX.Element {
         onChangeText={setDefaultContext}
       />
       <Button title="Enregistrer" onPress={save} />
-      <Section title="A venir">
-        Des contextes personnalisés pourront être ajouté ici
-      </Section>
-    </View>
+      <Text></Text>
+      <Button
+        title="Mettre à jour les configurations de chat"
+        onPress={updateContexts}
+      />
+    </ScrollView>
   );
 }
