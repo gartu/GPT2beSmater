@@ -182,9 +182,9 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
         onChangeText={setInput}
       />
       <TwoButton
-        btn1={{title: 'Envoyer', onPress: send, disabled: sendButtonDisabled}}
+        btn1={{title: 'Répondre', onPress: send, disabled: sendButtonDisabled}}
         btn2={{
-          title: 'Effacer et envoyer',
+          title: 'Nouvelle interaction',
           onPress: clearAndSend,
           disabled: sendButtonDisabled,
         }}
