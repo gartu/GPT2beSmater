@@ -17,6 +17,12 @@ const theme = createTheme({
         padding: 5,
       },
     },
+    Button: {
+      radius: 7,
+      buttonStyle: {
+        margin: 10,
+      },
+    },
     Input: {
       style: inputStyle,
     },

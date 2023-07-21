@@ -1,13 +1,13 @@
 /* eslint-disable prettier/prettier */
+import {Text} from '@rneui/themed';
 import React from 'react';
 import {PropsWithChildren} from 'react';
 import {StyleSheet, View, useColorScheme} from 'react-native';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
-import {Text} from '@rneui/base';
 
-type SectionProps = PropsWithChildren<{}>;
+type TitleProps = PropsWithChildren<{}>;
 
-export function Title({children}: SectionProps): JSX.Element {
+export function Title({children}: TitleProps): JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
   return (
     <View style={styles.container}>
@@ -26,8 +26,8 @@ export function Title({children}: SectionProps): JSX.Element {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+    marginTop: 10,
+    paddingHorizontal: 10,
   },
   title: {
     fontSize: 20,

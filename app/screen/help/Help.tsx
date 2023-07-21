@@ -2,8 +2,7 @@ import React, {useEffect} from 'react';
 import {Image, ImageStyle, StyleProp} from 'react-native';
 import {NavigationProp} from '@react-navigation/native';
 import screens from '../screens';
-import {Button} from '@rneui/base';
-import {Text} from '@rneui/themed';
+import {Button, Text} from '@rneui/themed';
 import {Title} from '../../shared/components/Title';
 import {ScrollView} from 'react-native-gesture-handler';
 
@@ -35,7 +34,11 @@ export function Help({navigation}: HelpProps): JSX.Element {
       />
       <Text>
         Si vous disposez déjà d'un compte, connectez-vous via "Log in".{'\n'}
-        {'\n'}
+      </Text>
+
+      <Title>Ajouter une méthode de paiement</Title>
+
+      <Text>
         Afin de pouvoir utiliser l'API, vous devez premièrement renseigner un
         moyen de paiement.{'\n'}Pour cela, ouvrez le menu et rendez-vous dans la
         partie correspondante.
@@ -69,6 +72,9 @@ export function Help({navigation}: HelpProps): JSX.Element {
         source={require('./assets/usage-limit.png')}
         style={printScreenStyle(300)}
       />
+
+      <Title>Générer votre clé d'API</Title>
+
       <Text>
         Vous pouvez désormais générer une clé API, il s'agit d'une sorte de clé
         d'accès permettant de lier l'application à votre compte.{'\n'}

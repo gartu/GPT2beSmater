@@ -5,8 +5,7 @@ import {Section} from '../../shared/components/Section';
 import {openAiServiceHandler} from '../../core/service/openAi.service';
 import {NavigationProp} from '@react-navigation/native';
 import {styles} from '../../shared/styles/globalStyle';
-import {Button, Dialog, Text} from '@rneui/base';
-import {Input} from '@rneui/themed';
+import {Button, Dialog, Input, Text} from '@rneui/themed';
 import TextArea from '../../shared/components/TextArea';
 
 type ParametersProps = {
@@ -80,7 +79,6 @@ export function Parameters({navigation}: ParametersProps): JSX.Element {
         onChangeText={setApiModel}
       />
       <Button title="Enregistrer" onPress={saveApiModel} />
-      <Text></Text>
       <Button
         title="Afficher les modèles disponible"
         onPress={displayAvailableModels}
@@ -93,7 +91,7 @@ export function Parameters({navigation}: ParametersProps): JSX.Element {
         <Dialog.Title title="Liste des modèles" />
         <Text style={boldStyle}>
           Attention - Tous les modèles n'ont pas le même coût.{'\n'}
-          Se renseigner sur le site d'OpenAI.
+          Se renseigner sur la page "Pricing" du site d'OpenAI.
         </Text>
         <ScrollView>
           <Text></Text>
@@ -122,7 +120,6 @@ export function Parameters({navigation}: ParametersProps): JSX.Element {
       </Section>
 
       <Button title="Vérifier la connexion à l'API" onPress={apiCheck} />
-      <Text></Text>
       <Dialog
         isVisible={apiCheckDialogVisible}
         onBackdropPress={clearApiCheckDialog}

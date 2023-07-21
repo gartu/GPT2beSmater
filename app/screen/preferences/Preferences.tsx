@@ -2,8 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {NavigationProp} from '@react-navigation/native';
 import {CoreStore} from '../../core/store/core.store';
 import {styles} from '../../shared/styles/globalStyle';
-import {Input} from '@rneui/themed';
-import {Button, Text} from '@rneui/base';
+import {Button, Input, Text} from '@rneui/themed';
 import {chat} from '../../contexts';
 import TextArea from '../../shared/components/TextArea';
 import {ScrollView} from 'react-native-gesture-handler';
@@ -37,7 +36,7 @@ export function Preferences({navigation}: PreferencesProps): JSX.Element {
     CoreStore.remove('LAST_UPDATED_CONTEXT_TIME');
     CoreStore.remove('CONTEXTS');
     ToastAndroid.show(
-      `Relancer l'application afin de terminer la mise à jour.`,
+      `Relancer l'application pour finaliser la mise à jour.`,
       ToastAndroid.SHORT,
     );
   };
@@ -58,7 +57,13 @@ export function Preferences({navigation}: PreferencesProps): JSX.Element {
         onChangeText={setDefaultContext}
       />
       <Button title="Enregistrer" onPress={save} />
-      <Text></Text>
+      <Text>
+        Afin de pouvoir mettre à jour régulièrement la liste des options
+        disponibles, celles-ci sont récupérées sur un serveur distant.{'\n'}
+        Elles sont automatiquement mise à jour 1x par jour, mais il est
+        également possible de forcer la récupération à l'aide du bouton
+        ci-dessous.
+      </Text>
       <Button
         title="Mettre à jour les configurations de chat"
         onPress={updateContexts}

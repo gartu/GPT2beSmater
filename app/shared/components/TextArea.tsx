@@ -1,7 +1,7 @@
-import {Input} from '@rneui/base';
 import React, {PropsWithChildren} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {inputStyle} from '../../core/theme/theme';
+import {Input} from '@rneui/themed';
 
 type TextAreaProps = PropsWithChildren<{
   placeholder?: string;

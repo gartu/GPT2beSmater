@@ -2,8 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {StyleSheet, ToastAndroid, View} from 'react-native';
 import {NavigationProp} from '@react-navigation/native';
 import {openAiServiceHandler} from '../../core/service/openAi.service';
-import {Divider, Icon} from '@rneui/themed';
-import {Button, Text} from '@rneui/base';
+import {Button, Divider, Icon, Text} from '@rneui/themed';
 import {Picker} from '@react-native-picker/picker';
 import {ScrollView} from 'react-native-gesture-handler';
 import TextArea from '../../shared/components/TextArea';
@@ -12,6 +11,7 @@ import {ContextVariablePicker} from './components/ContextVariablePicker';
 import {CoreStore} from '../../core/store/core.store';
 import {BotContext, Variable} from '../../shared/contexts.v1';
 import Clipboard from '@react-native-clipboard/clipboard';
+import {TwoButton} from '../../shared/components/TwoButton';
 
 type InteractionProps = {
   navigation: NavigationProp<any, 'Interaction'>;
@@ -70,6 +70,11 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
       await CoreStore.getObject('CHAT_HISTORY'),
     );
     setHistoryExists(chatHistoryExists);
+  };
+
+  const clearAndSend = async () => {
+    await clearInteraction();
+    send();
   };
 
   const send = async () => {
@@ -176,14 +181,19 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
         value={input}
         onChangeText={setInput}
       />
-      <Button disabled={sendButtonDisabled} title="Envoyer" onPress={send} />
-      <Text>{'\n'}</Text>
+      <TwoButton
+        btn1={{title: 'Envoyer', onPress: send, disabled: sendButtonDisabled}}
+        btn2={{
+          title: 'Effacer et envoyer',
+          onPress: clearAndSend,
+          disabled: sendButtonDisabled,
+        }}
+      />
       {historyExists ? (
         <Button title="Effacer la conversation" onPress={clearInteraction} />
       ) : (
         ''
       )}
-      <Text>{'\n'}</Text>
     </ScrollView>
   );
 }
