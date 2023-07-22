@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {ScrollView, StyleProp, TextStyle} from 'react-native';
+import {ScrollView, StyleProp, TextStyle, ToastAndroid} from 'react-native';
 import {CoreStore} from '../../core/store/core.store';
 import {Section} from '../../shared/components/Section';
 import {openAiServiceHandler} from '../../core/service/openAi.service';
@@ -14,7 +14,7 @@ type ParametersProps = {
 
 export function Parameters({navigation}: ParametersProps): JSX.Element {
   const [apiKey, setApiKey] = useState('');
-  const [apiModel, setApiModel] = useState('gpt-3.5-turbo');
+  const [apiModel, setApiModel] = useState('');
   const [apiCheckResponse, setApiCheckResponse] = useState('');
   const [apiCheckDialogVisible, setApiCheckDialogVisible] = useState(false);
   const [availableModels, setAvailableModels] = useState<string[]>([]);
@@ -33,6 +33,7 @@ export function Parameters({navigation}: ParametersProps): JSX.Element {
   const saveApiKey = async () => {
     await CoreStore.storeItem('API_KEY', apiKey);
     openAiServiceHandler.rebuild();
+    ToastAndroid.show('Enregistrement réussi', ToastAndroid.SHORT);
   };
 
   // gestion du modèle
@@ -41,7 +42,12 @@ export function Parameters({navigation}: ParametersProps): JSX.Element {
   };
 
   const saveApiModel = () => {
-    CoreStore.storeItem('API_MODEL', apiModel);
+    const newApiModel = apiModel || 'gpt-3.5-turbo';
+    if (!apiModel) {
+      setApiModel(newApiModel);
+    }
+    CoreStore.storeItem('API_MODEL', newApiModel);
+    ToastAndroid.show('Enregistrement réussi', ToastAndroid.SHORT);
   };
 
   const apiCheck = async () => {
@@ -74,7 +80,7 @@ export function Parameters({navigation}: ParametersProps): JSX.Element {
     <ScrollView>
       <Text style={[styles.fieldTitle]}>{'\n'}Modèle à utiliser</Text>
       <Input
-        placeholder="Modèle à utiliser"
+        placeholder="Modèle à utiliser. Laissez vide pour revenir à la valeur par défaut."
         value={apiModel}
         onChangeText={setApiModel}
       />

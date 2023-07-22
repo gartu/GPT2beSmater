@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {StyleSheet, ToastAndroid, View} from 'react-native';
 import {NavigationProp} from '@react-navigation/native';
 import {openAiServiceHandler} from '../../core/service/openAi.service';
-import {Button, Divider, Icon, Text} from '@rneui/themed';
+import {Button, Dialog, Divider, Icon, Text} from '@rneui/themed';
 import {Picker} from '@react-native-picker/picker';
 import {ScrollView} from 'react-native-gesture-handler';
 import TextArea from '../../shared/components/TextArea';
@@ -22,7 +22,7 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
   const [lastInput, setLastInput] = useState('');
   const [output, setOutput] = useState('');
   const [botContextIdx, setBotContextIdx] = useState(0);
-  const [sendButtonDisabled, setSendButtonDisabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [historyExists, setHistoryExists] = useState(false);
   const [contextVariables, setContextVariables] = useState<Variable[]>([]);
   const [contexts, setContexts] = useState<BotContext[]>([]);
@@ -78,7 +78,7 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
   };
 
   const send = async () => {
-    setSendButtonDisabled(true);
+    setIsLoading(true);
     setLastInput(input);
     setInput('');
     const openAiService = await openAiServiceHandler.getInstance();
@@ -100,14 +100,14 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
     );
     setHistoryExists(true);
     setOutput(result);
-    setSendButtonDisabled(false);
+    setIsLoading(false);
   };
 
   const clearInteraction = async () => {
     setHistoryExists(false);
-    setSendButtonDisabled(true);
+    setIsLoading(true);
     await CoreStore.remove('CHAT_HISTORY');
-    setSendButtonDisabled(false);
+    setIsLoading(false);
   };
 
   function onVariableChangeBuilder(
@@ -129,6 +129,10 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
   const copyOutput = () => {
     Clipboard.setString(output);
     ToastAndroid.show('Message copié', ToastAndroid.SHORT);
+  };
+
+  const displayWaitingMessage = () => {
+    ToastAndroid.show('Chargement en cours..', ToastAndroid.SHORT);
   };
 
   return (
@@ -182,11 +186,11 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
         onChangeText={setInput}
       />
       <TwoButton
-        btn1={{title: 'Répondre', onPress: send, disabled: sendButtonDisabled}}
+        btn1={{title: 'Répondre', onPress: send, disabled: isLoading}}
         btn2={{
           title: 'Nouvelle interaction',
           onPress: clearAndSend,
-          disabled: sendButtonDisabled,
+          disabled: isLoading,
         }}
       />
       {historyExists ? (
@@ -194,6 +198,10 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
       ) : (
         ''
       )}
+
+      <Dialog isVisible={isLoading} onBackdropPress={displayWaitingMessage}>
+        <Dialog.Loading />
+      </Dialog>
     </ScrollView>
   );
 }

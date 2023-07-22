@@ -22,7 +22,12 @@ export function Preferences({navigation}: PreferencesProps): JSX.Element {
 
   const save = () => {
     CoreStore.storeItem('USERNAME', username);
-    CoreStore.storeItem('DEFAULT_CHAT_CONTEXT', defaultContext);
+    const newDefaultContext = defaultContext || chat;
+    if (!defaultContext) {
+      setDefaultContext(newDefaultContext);
+    }
+    CoreStore.storeItem('DEFAULT_CHAT_CONTEXT', newDefaultContext);
+    ToastAndroid.show('Enregistrement réussi', ToastAndroid.SHORT);
   };
 
   // gestion du nom d'utilisateur
@@ -52,7 +57,7 @@ export function Preferences({navigation}: PreferencesProps): JSX.Element {
       <Text style={[styles.fieldTitle]}>{'\n'}Contexte du chat par défaut</Text>
       <TextArea
         nbLines={4}
-        placeholder="Entrez ici le contexte du chat par défaut"
+        placeholder="Entrez ici le contexte du chat par défaut. Laissez vide pour revenir à la valeur par défaut."
         value={defaultContext || ''}
         onChangeText={setDefaultContext}
       />
