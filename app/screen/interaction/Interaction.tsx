@@ -50,18 +50,19 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
   }, [contexts, botContextIdx]);
 
   useEffect(() => {
-    if (historyExists) {
-      setInputPlaceholder('Continuez ici ..');
-      return;
-    }
     if (
       contexts &&
       contexts.length > botContextIdx &&
       contexts[botContextIdx].placeholder
     ) {
-      setInputPlaceholder(contexts[botContextIdx].placeholder || '');
+      const suffixe = historyExists ? ' (un conversation est en cours)' : '';
+      setInputPlaceholder(
+        (contexts[botContextIdx].placeholder || '') + suffixe,
+      );
     } else {
-      setInputPlaceholder('Débuter ici ..');
+      setInputPlaceholder(
+        historyExists ? 'Continuer ici ..' : 'Débuter ici ..',
+      );
     }
   }, [botContextIdx, contexts, historyExists]);
 
