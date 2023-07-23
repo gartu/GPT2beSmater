@@ -108,13 +108,10 @@ class OpenAiService {
         messages,
       });
 
-      if (!forceNewDialog) {
-        CoreStore.storeObject('CHAT_HISTORY', messages);
-      }
-
-      logger.log(chatCompletion.data.choices);
       const response = chatCompletion.data.choices[0].message;
-      logger.log(response);
+      if (!forceNewDialog) {
+        CoreStore.storeObject('CHAT_HISTORY', [...messages, response]);
+      }
 
       return response?.content || '';
     } catch (error) {
