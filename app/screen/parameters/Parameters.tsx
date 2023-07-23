@@ -30,9 +30,11 @@ export function Parameters({navigation}: ParametersProps): JSX.Element {
   const updateApiKeyFromStorage = async () => {
     setApiKey(await CoreStore.getItem('API_KEY'));
   };
-  const saveApiKey = async () => {
+
+  const save = async () => {
     await CoreStore.storeItem('API_KEY', apiKey);
     openAiServiceHandler.rebuild();
+    saveApiModel();
     ToastAndroid.show('Enregistrement réussi', ToastAndroid.SHORT);
   };
 
@@ -41,14 +43,13 @@ export function Parameters({navigation}: ParametersProps): JSX.Element {
     setApiModel(await CoreStore.getItem('API_MODEL'));
   };
 
-  const saveApiModel = () => {
+  function saveApiModel() {
     const newApiModel = apiModel || 'gpt-3.5-turbo';
     if (!apiModel) {
       setApiModel(newApiModel);
     }
     CoreStore.storeItem('API_MODEL', newApiModel);
-    ToastAndroid.show('Enregistrement réussi', ToastAndroid.SHORT);
-  };
+  }
 
   const apiCheck = async () => {
     setApiCheckDialogVisible(true);
@@ -84,7 +85,6 @@ export function Parameters({navigation}: ParametersProps): JSX.Element {
         value={apiModel}
         onChangeText={setApiModel}
       />
-      <Button title="Enregistrer" onPress={saveApiModel} />
       <Button
         title="Afficher les modèles disponible"
         onPress={displayAvailableModels}
@@ -118,7 +118,7 @@ export function Parameters({navigation}: ParametersProps): JSX.Element {
         value={apiKey}
         onChangeText={setApiKey}
       />
-      <Button title="Enregistrer" onPress={saveApiKey} />
+      <Button title="Enregistrer" onPress={save} />
 
       <Section title="API Check">
         Cliquez sur le bouton ci-dessous pour vérifier le bon fonctionnement de

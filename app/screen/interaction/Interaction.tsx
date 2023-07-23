@@ -24,12 +24,15 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
   const [botContextIdx, setBotContextIdx] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [historyExists, setHistoryExists] = useState(false);
+  const [isFlowConversation, setIsFlowConversation] = useState(false);
   const [contextVariables, setContextVariables] = useState<Variable[]>([]);
   const [contexts, setContexts] = useState<BotContext[]>([]);
   const [selectedOptions, setSelectedOptions] = useState(
     {} as {[key: string]: string},
   );
-  const [inputPlaceholder, setInputPlaceholder] = useState('Débuter ici ..');
+  const [inputPlaceholder, setInputPlaceholder] = useState(
+    'De quoi souhaitez-vous parler ?',
+  );
 
   useEffect(() => {
     contextService.getContexts().then(ctx => {
@@ -61,10 +64,18 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
       );
     } else {
       setInputPlaceholder(
-        historyExists ? 'Continuer ici ..' : 'Débuter ici ..',
+        historyExists ? 'Répondre ici ..' : 'De quoi souhaitez-vous parler ?',
       );
     }
   }, [botContextIdx, contexts, historyExists]);
+
+  useEffect(() => {
+    setIsFlowConversation(
+      contexts &&
+        contexts.length > botContextIdx &&
+        contexts[botContextIdx].conversationType === 'FLOW',
+    );
+  }, [botContextIdx, contexts]);
 
   const updateChatHistoryState = async () => {
     const chatHistoryExists = Boolean(
@@ -186,14 +197,22 @@ export function Interaction({navigation}: InteractionProps): JSX.Element {
         value={input}
         onChangeText={setInput}
       />
-      <TwoButton
-        btn1={{title: 'Répondre', onPress: send, disabled: isLoading}}
-        btn2={{
-          title: 'Nouvelle interaction',
-          onPress: clearAndSend,
-          disabled: isLoading,
-        }}
-      />
+      {isFlowConversation || !historyExists ? (
+        <Button
+          title={historyExists ? 'Répondre' : 'Envoyer'}
+          onPress={send}
+          disabled={isLoading}
+        />
+      ) : (
+        <TwoButton
+          btn1={{title: 'Répondre', onPress: send, disabled: isLoading}}
+          btn2={{
+            title: 'Nouvelle interaction',
+            onPress: clearAndSend,
+            disabled: isLoading,
+          }}
+        />
+      )}
       {historyExists ? (
         <Button title="Effacer la conversation" onPress={clearInteraction} />
       ) : (

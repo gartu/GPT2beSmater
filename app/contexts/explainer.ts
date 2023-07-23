@@ -7,6 +7,8 @@ const explainer: BotContext = {
   %ANALOGY%
   Utilise une réponse directe sans paraphraser la demande.
   Répond en maximum 150 mots.`,
+  conversationType: 'PUNCTUAL',
+  placeholder: 'Explique moi ..',
   request: `Question :
   \`\`\`%DATA%\`\`\``,
   variables: [analogiesVar],

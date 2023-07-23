@@ -6,6 +6,9 @@ export type BotContext = {
   name: string;
   context: string;
   request: string;
-  placeholder?: string;
+  conversationType: ConversationType;
+  placeholder: string;
   variables: Variable[];
 };
+
+export type ConversationType = 'FLOW' | 'PUNCTUAL';
